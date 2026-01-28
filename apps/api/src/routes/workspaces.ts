@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireRole } from "../middleware/auth";
 import { z } from "zod";
 
 const router = Router();
 
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", authMiddleware, async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const memberships = await prisma.workspaceMember.findMany({
     where: { userId },
@@ -18,7 +18,7 @@ router.get("/", authMiddleware, async (req, res) => {
   })) });
 });
 
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, async (req: Request, res: Response) => {
   const input = z.object({ name: z.string().min(2) }).parse(req.body);
   const userId = req.user?.id as string;
   const workspace = await prisma.workspace.create({
@@ -35,7 +35,7 @@ router.post("/", authMiddleware, async (req, res) => {
   res.json({ workspace });
 });
 
-router.post("/:workspaceId/members", authMiddleware, requireRole(["OWNER", "ADMIN"]), async (req, res) => {
+router.post("/:workspaceId/members", authMiddleware, requireRole(["OWNER", "ADMIN"]), async (req: Request, res: Response) => {
   const input = z.object({ email: z.string().email(), role: z.enum(["OWNER", "ADMIN", "MEMBER"]) }).parse(req.body);
   const workspaceId = req.params.workspaceId;
   const user = await prisma.user.findUnique({ where: { email: input.email } });

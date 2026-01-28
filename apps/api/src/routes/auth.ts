@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "@puenteflow/db";
@@ -26,14 +26,14 @@ const magicSchema = z.object({
 const generateTokens = (user: { id: string; email: string }) => {
   const accessSecret: Secret = config.jwtSecret;
   const refreshSecret: Secret = config.jwtRefreshSecret;
-  const accessOptions: SignOptions = { expiresIn: config.jwtExpiresIn };
-  const refreshOptions: SignOptions = { expiresIn: config.jwtRefreshExpiresIn };
+  const accessOptions: SignOptions = { expiresIn: config.jwtExpiresIn as SignOptions["expiresIn"] };
+  const refreshOptions: SignOptions = { expiresIn: config.jwtRefreshExpiresIn as SignOptions["expiresIn"] };
   const accessToken = jwt.sign({ sub: user.id, email: user.email }, accessSecret, accessOptions);
   const refreshToken = jwt.sign({ sub: user.id, email: user.email }, refreshSecret, refreshOptions);
   return { accessToken, refreshToken };
 };
 
-router.post("/register", authRateLimiter, async (req, res) => {
+router.post("/register", authRateLimiter, async (req: Request, res: Response) => {
   const input = registerSchema.parse(req.body);
   const passwordHash = await bcrypt.hash(input.password, 10);
 
@@ -63,7 +63,7 @@ router.post("/register", authRateLimiter, async (req, res) => {
   res.json({ accessToken, refreshToken });
 });
 
-router.post("/login", authRateLimiter, async (req, res) => {
+router.post("/login", authRateLimiter, async (req: Request, res: Response) => {
   const input = loginSchema.parse(req.body);
   const user = await prisma.user.findUnique({ where: { email: input.email } });
   if (!user || !user.passwordHash) {
@@ -86,7 +86,7 @@ router.post("/login", authRateLimiter, async (req, res) => {
   res.json({ accessToken, refreshToken });
 });
 
-router.post("/magic-link", authRateLimiter, async (req, res) => {
+router.post("/magic-link", authRateLimiter, async (req: Request, res: Response) => {
   const input = magicSchema.parse(req.body);
   const user = await prisma.user.findUnique({ where: { email: input.email } });
   if (!user) {
@@ -105,7 +105,7 @@ router.post("/magic-link", authRateLimiter, async (req, res) => {
   res.json({ message: "Magic link created", token });
 });
 
-router.post("/magic-link/verify", async (req, res) => {
+router.post("/magic-link/verify", async (req: Request, res: Response) => {
   const token = z.string().parse(req.body?.token);
   try {
     const payload = jwt.verify(token, config.jwtSecret) as { sub: string; email: string; type: string };
@@ -132,7 +132,7 @@ router.post("/magic-link/verify", async (req, res) => {
   }
 });
 
-router.post("/refresh", async (req, res) => {
+router.post("/refresh", async (req: Request, res: Response) => {
   const token = z.string().parse(req.body?.refreshToken);
   try {
     const payload = jwt.verify(token, config.jwtRefreshSecret) as { sub: string; email: string };

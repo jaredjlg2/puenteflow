@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma } from "@puenteflow/db";
 import { publishEvent } from "../services/workflows";
 
 const router = Router();
 
-router.post("/forms/:formId/submit", async (req, res) => {
+router.post("/forms/:formId/submit", async (req: Request, res: Response) => {
   const form = await prisma.form.findUnique({ where: { id: req.params.formId } });
   if (!form) {
     return res.status(404).json({ error: "Form not found" });

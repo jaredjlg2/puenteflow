@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma, addWorkspaceFilter } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { z } from "zod";
@@ -6,7 +6,7 @@ import { publishEvent } from "../services/workflows";
 
 const router = Router();
 
-router.get("/pipelines", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/pipelines", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const pipelines = await prisma.pipeline.findMany(addWorkspaceFilter(workspaceId, {
     include: { stages: true }
@@ -14,7 +14,7 @@ router.get("/pipelines", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ pipelines });
 });
 
-router.post("/pipelines", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/pipelines", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = z.object({ name: z.string().min(2) }).parse(req.body);
   const pipeline = await prisma.pipeline.create({
@@ -23,7 +23,7 @@ router.post("/pipelines", authMiddleware, requireWorkspace, async (req, res) => 
   res.json({ pipeline });
 });
 
-router.post("/stages", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/stages", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = z.object({ pipelineId: z.string(), name: z.string(), order: z.number() }).parse(req.body);
   const stage = await prisma.stage.create({
@@ -32,7 +32,7 @@ router.post("/stages", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ stage });
 });
 
-router.get("/opportunities", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/opportunities", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const opportunities = await prisma.opportunity.findMany(addWorkspaceFilter(workspaceId, {
     include: { contact: true, stage: true }
@@ -40,7 +40,7 @@ router.get("/opportunities", authMiddleware, requireWorkspace, async (req, res) 
   res.json({ opportunities });
 });
 
-router.post("/opportunities", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/opportunities", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = z.object({ contactId: z.string(), stageId: z.string(), value: z.number().optional() }).parse(req.body);
   const opportunity = await prisma.opportunity.create({
@@ -54,7 +54,7 @@ router.post("/opportunities", authMiddleware, requireWorkspace, async (req, res)
   res.json({ opportunity });
 });
 
-router.post("/opportunities/move", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/opportunities/move", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = z.object({ opportunityId: z.string(), stageId: z.string() }).parse(req.body);
   await prisma.opportunity.updateMany({
