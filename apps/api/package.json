@@ -13,7 +13,7 @@
     "@puenteflow/db": "workspace:*",
     "@puenteflow/shared": "workspace:*",
     "@sendgrid/mail": "^8.1.4",
-    "@sendgrid/eventwebhook": "^8.1.0",
+    "@sendgrid/eventwebhook": "^8.0.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.7.8",
     "cors": "^2.8.5",
