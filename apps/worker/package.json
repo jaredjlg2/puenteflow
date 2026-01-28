@@ -1,0 +1,25 @@
+{
+  "name": "@puenteflow/worker",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "echo 'no lint'"
+  },
+  "dependencies": {
+    "@puenteflow/db": "workspace:*",
+    "@puenteflow/shared": "workspace:*",
+    "@sendgrid/mail": "^8.1.4",
+    "bullmq": "^5.7.8",
+    "dotenv": "^16.4.5",
+    "twilio": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

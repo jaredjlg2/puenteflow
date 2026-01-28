@@ -1,0 +1,18 @@
+{
+  "name": "puenteflow",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "db:up": "docker compose up -d db redis",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @puenteflow/db prisma migrate dev",
+    "db:seed": "pnpm --filter @puenteflow/db prisma db seed"
+  }
+}
