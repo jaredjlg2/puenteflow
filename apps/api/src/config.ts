@@ -18,6 +18,7 @@ export const config = {
   },
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY || "",
-    fromEmail: process.env.SENDGRID_FROM_EMAIL || ""
+    fromEmail: process.env.SENDGRID_FROM_EMAIL || "",
+    webhookPublicKey: process.env.SENDGRID_WEBHOOK_PUBLIC_KEY || ""
   }
 };

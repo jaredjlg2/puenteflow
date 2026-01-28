@@ -1,6 +1,6 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "@puenteflow/db";
 import { z } from "zod";
 import { authRateLimiter } from "../middleware/rateLimit";
@@ -24,12 +24,12 @@ const magicSchema = z.object({
   email: z.string().email() });
 
 const generateTokens = (user: { id: string; email: string }) => {
-  const accessToken = jwt.sign({ sub: user.id, email: user.email }, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn
-  });
-  const refreshToken = jwt.sign({ sub: user.id, email: user.email }, config.jwtRefreshSecret, {
-    expiresIn: config.jwtRefreshExpiresIn
-  });
+  const accessSecret: Secret = config.jwtSecret;
+  const refreshSecret: Secret = config.jwtRefreshSecret;
+  const accessOptions: SignOptions = { expiresIn: config.jwtExpiresIn };
+  const refreshOptions: SignOptions = { expiresIn: config.jwtRefreshExpiresIn };
+  const accessToken = jwt.sign({ sub: user.id, email: user.email }, accessSecret, accessOptions);
+  const refreshToken = jwt.sign({ sub: user.id, email: user.email }, refreshSecret, refreshOptions);
   return { accessToken, refreshToken };
 };
 
@@ -92,9 +92,9 @@ router.post("/magic-link", authRateLimiter, async (req, res) => {
   if (!user) {
     return res.status(200).json({ message: "If the email exists, a link will be sent." });
   }
-  const token = jwt.sign({ sub: user.id, email: user.email, type: "magic" }, config.jwtSecret, {
-    expiresIn: "15m"
-  });
+  const magicSecret: Secret = config.jwtSecret;
+  const magicOptions: SignOptions = { expiresIn: "15m" };
+  const token = jwt.sign({ sub: user.id, email: user.email, type: "magic" }, magicSecret, magicOptions);
   await prisma.magicLinkToken.create({
     data: {
       userId: user.id,
