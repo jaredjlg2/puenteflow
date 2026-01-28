@@ -88,14 +88,12 @@ router.post("/twilio/sms", async (req: Request, res: Response) => {
 router.post("/sendgrid/events", async (req: Request, res: Response) => {
   const signature = req.headers["x-twilio-email-event-webhook-signature"] as string | undefined;
   const timestamp = req.headers["x-twilio-email-event-webhook-timestamp"] as string | undefined;
-  if (config.sendgrid.apiKey && signature && timestamp) {
+  const publicKey = config.sendgrid.webhookPublicKey;
+  if (publicKey && signature && timestamp) {
     const webhook = new EventWebhook();
     const payload = Buffer.isBuffer(req.body) ? req.body.toString() : JSON.stringify(req.body);
-    const valid = webhook.verifySignature({
-      signature,
-      timestamp,
-      payload
-    });
+    const ecdsaKey = webhook.convertPublicKeyToECDSA(publicKey);
+    const valid = webhook.verifySignature(ecdsaKey, payload, signature, timestamp);
     if (!valid) {
       return res.status(403).send("invalid signature");
     }
