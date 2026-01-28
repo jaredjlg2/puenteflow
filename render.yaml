@@ -12,7 +12,7 @@ services:
     name: puenteflow-api
     env: node
     plan: starter
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @puenteflow/db prisma generate && pnpm --filter @puenteflow/api build
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build:api
     startCommand: pnpm --filter @puenteflow/api start
     envVars:
       - key: DATABASE_URL

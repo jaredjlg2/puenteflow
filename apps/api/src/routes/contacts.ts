@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma, addWorkspaceFilter } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { zContactCreate } from "@puenteflow/shared";
@@ -6,7 +6,7 @@ import { publishEvent } from "../services/workflows";
 
 const router = Router();
 
-router.get("/", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const contacts = await prisma.contact.findMany(addWorkspaceFilter(workspaceId, {
     orderBy: { createdAt: "desc" }
@@ -14,7 +14,7 @@ router.get("/", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ contacts });
 });
 
-router.post("/", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = zContactCreate.parse(req.body);
   const contact = await prisma.contact.create({
@@ -36,7 +36,7 @@ router.post("/", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ contact });
 });
 
-router.get("/:id", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/:id", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const contact = await prisma.contact.findFirst(addWorkspaceFilter(workspaceId, {
     where: { id: req.params.id },

@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma, addWorkspaceFilter } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { zAutomationCreate } from "@puenteflow/shared";
 
 const router = Router();
 
-router.get("/", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const automations = await prisma.automation.findMany(addWorkspaceFilter(workspaceId, {
     include: { triggers: true, actions: true }
@@ -13,7 +13,7 @@ router.get("/", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ automations });
 });
 
-router.post("/", authMiddleware, requireWorkspace, async (req, res) => {
+router.post("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = zAutomationCreate.parse(req.body);
 
@@ -44,7 +44,7 @@ router.post("/", authMiddleware, requireWorkspace, async (req, res) => {
   res.json({ automation });
 });
 
-router.patch("/:id", authMiddleware, requireWorkspace, async (req, res) => {
+router.patch("/:id", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = req.body as { enabled?: boolean; name?: string };
   await prisma.automation.updateMany({

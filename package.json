@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
+    "build:api": "pnpm --filter ./apps/api... build",
     "lint": "pnpm -r lint",
     "db:up": "docker compose up -d db redis",
     "db:down": "docker compose down",

@@ -21,7 +21,7 @@ const workspaceModels = new Set([
   "AutomationAuditLog"
 ]);
 
-prisma.$use(async (params, next) => {
+prisma.$use(async (params: Prisma.MiddlewareParams, next: Prisma.MiddlewareNext) => {
   if (params.model && workspaceModels.has(params.model)) {
     const action = params.action;
     const args = params.args ?? {};
@@ -48,14 +48,16 @@ prisma.$use(async (params, next) => {
 
 const buildWorkspaceFilter = (workspaceId: string) => ({ workspaceId });
 
-const addWorkspaceFilter = <T extends Prisma.Subset<any, any>>(workspaceId: string, args: T) => {
+type WorkspaceWhereArgs = { where?: Record<string, unknown> };
+
+const addWorkspaceFilter = <T extends WorkspaceWhereArgs>(workspaceId: string, args: T): T => {
   return {
     ...args,
     where: {
-      ...(args as any).where,
+      ...args.where,
       workspaceId
     }
-  } as T;
+  };
 };
 
 export { prisma, buildWorkspaceFilter, addWorkspaceFilter };

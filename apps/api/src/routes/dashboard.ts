@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { prisma, addWorkspaceFilter } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", authMiddleware, requireWorkspace, async (req, res) => {
+router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const stages = await prisma.stage.findMany(addWorkspaceFilter(workspaceId, {
     include: { opportunities: true }
