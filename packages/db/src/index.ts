@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,11 @@ const workspaceModels = new Set([
   "AutomationAuditLog"
 ]);
 
-prisma.$use(async (params: Prisma.MiddlewareParams, next: Prisma.MiddlewareNext) => {
+type PrismaMiddleware = Parameters<PrismaClient["$use"]>[0];
+type PrismaMiddlewareParams = Parameters<PrismaMiddleware>[0];
+type PrismaMiddlewareNext = Parameters<PrismaMiddleware>[1];
+
+prisma.$use(async (params: PrismaMiddlewareParams, next: PrismaMiddlewareNext) => {
   if (params.model && workspaceModels.has(params.model)) {
     const action = params.action;
     const args = params.args ?? {};
@@ -48,9 +52,9 @@ prisma.$use(async (params: Prisma.MiddlewareParams, next: Prisma.MiddlewareNext)
 
 const buildWorkspaceFilter = (workspaceId: string) => ({ workspaceId });
 
-type WorkspaceWhereArgs = { where?: Record<string, unknown> };
+type WorkspaceScopedWhere = { workspaceId?: string | null };
 
-const addWorkspaceFilter = <T extends WorkspaceWhereArgs>(workspaceId: string, args: T): T => {
+const addWorkspaceFilter = <T extends { where?: WorkspaceScopedWhere }>(workspaceId: string, args: T): T => {
   return {
     ...args,
     where: {

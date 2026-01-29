@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import { prisma } from "@puenteflow/db";
 import { workflowQueue } from "../queue";
 import { ActionType, TriggerType } from "@puenteflow/shared";
+import type { Prisma } from "@prisma/client";
 
 export const eventBus = new EventEmitter();
 
@@ -17,7 +18,7 @@ export const publishEvent = async (event: DomainEvent) => {
 
 export const startWorkflowListener = () => {
   eventBus.on("event", async (event: DomainEvent) => {
-    const automations = await prisma.automation.findMany({
+    const automations: Prisma.AutomationGetPayload<{ include: { actions: true } }>[] = await prisma.automation.findMany({
       where: {
         workspaceId: event.workspaceId,
         enabled: true,

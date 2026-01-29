@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from "express";
+import type { Prisma } from "@prisma/client";
 import { prisma, addWorkspaceFilter } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 
@@ -6,7 +7,7 @@ const router = Router();
 
 router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const stages = await prisma.stage.findMany(addWorkspaceFilter(workspaceId, {
+  const stages: Prisma.StageGetPayload<{ include: { opportunities: true } }>[] = await prisma.stage.findMany(addWorkspaceFilter(workspaceId, {
     include: { opportunities: true }
   }));
   const stageCounts = stages.map((stage) => ({
