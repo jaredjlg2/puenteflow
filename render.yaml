@@ -43,6 +43,9 @@ services:
   - type: redis
     name: puenteflow-redis
     plan: starter
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: temporary allow-all for Render blueprint validation
 
 databases:
   - name: puenteflow-db
