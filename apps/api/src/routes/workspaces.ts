@@ -2,12 +2,13 @@ import { Router, type Request, type Response } from "express";
 import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireRole } from "../middleware/auth";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 
 const router = Router();
 
 router.get("/", authMiddleware, async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
-  const memberships = await prisma.workspaceMember.findMany({
+  const memberships: Prisma.WorkspaceMemberGetPayload<{ include: { workspace: true } }>[] = await prisma.workspaceMember.findMany({
     where: { userId },
     include: { workspace: true }
   });

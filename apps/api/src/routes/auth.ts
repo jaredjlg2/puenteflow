@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "@puenteflow/db";
+import type { RefreshToken } from "@prisma/client";
 import { z } from "zod";
 import { authRateLimiter } from "../middleware/rateLimit";
 import { config } from "../config";
@@ -136,7 +137,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
   const token = z.string().parse(req.body?.refreshToken);
   try {
     const payload = jwt.verify(token, config.jwtRefreshSecret) as { sub: string; email: string };
-    const tokens = await prisma.refreshToken.findMany({ where: { userId: payload.sub } });
+    const tokens: RefreshToken[] = await prisma.refreshToken.findMany({ where: { userId: payload.sub } });
     const matches = await Promise.all(tokens.map((t) => bcrypt.compare(token, t.tokenHash)));
     if (!matches.some(Boolean)) {
       return res.status(401).json({ error: "Invalid refresh token" });
