@@ -11,6 +11,7 @@
     "build": "pnpm -r build",
     "build:api": "pnpm --filter ./apps/api... build",
     "lint": "pnpm -r lint",
+    "postinstall": "pnpm --filter @puenteflow/db generate",
     "db:up": "docker compose up -d db redis",
     "db:down": "docker compose down",
     "db:migrate": "pnpm --filter @puenteflow/db prisma migrate dev",

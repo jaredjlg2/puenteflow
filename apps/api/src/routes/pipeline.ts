@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { prisma, addWorkspaceFilter } from "@puenteflow/db";
+import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { z } from "zod";
 import { publishEvent } from "../services/workflows";
@@ -8,9 +8,10 @@ const router = Router();
 
 router.get("/pipelines", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const pipelines = await prisma.pipeline.findMany(addWorkspaceFilter(workspaceId, {
+  const pipelines = await prisma.pipeline.findMany({
+    where: { workspaceId },
     include: { stages: true }
-  }));
+  });
   res.json({ pipelines });
 });
 
@@ -34,9 +35,10 @@ router.post("/stages", authMiddleware, requireWorkspace, async (req: Request, re
 
 router.get("/opportunities", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const opportunities = await prisma.opportunity.findMany(addWorkspaceFilter(workspaceId, {
+  const opportunities = await prisma.opportunity.findMany({
+    where: { workspaceId },
     include: { contact: true, stage: true }
-  }));
+  });
   res.json({ opportunities });
 });
 

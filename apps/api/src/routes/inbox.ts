@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { prisma, addWorkspaceFilter } from "@puenteflow/db";
+import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { z } from "zod";
 
@@ -7,19 +7,20 @@ const router = Router();
 
 router.get("/threads", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const threads = await prisma.messageThread.findMany(addWorkspaceFilter(workspaceId, {
+  const threads = await prisma.messageThread.findMany({
+    where: { workspaceId },
     include: { contact: true, messages: { orderBy: { createdAt: "asc" } } },
     orderBy: { updatedAt: "desc" }
-  }));
+  });
   res.json({ threads });
 });
 
 router.get("/threads/:id", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const thread = await prisma.messageThread.findFirst(addWorkspaceFilter(workspaceId, {
-    where: { id: req.params.id },
+  const thread = await prisma.messageThread.findFirst({
+    where: { id: req.params.id, workspaceId },
     include: { contact: true, messages: { orderBy: { createdAt: "asc" } } }
-  }));
+  });
   if (!thread) {
     return res.status(404).json({ error: "Not found" });
   }
@@ -29,9 +30,9 @@ router.get("/threads/:id", authMiddleware, requireWorkspace, async (req: Request
 router.post("/threads/:id/messages", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
   const input = z.object({ body: z.string().min(1) }).parse(req.body);
-  const thread = await prisma.messageThread.findFirst(addWorkspaceFilter(workspaceId, {
-    where: { id: req.params.id }
-  }));
+  const thread = await prisma.messageThread.findFirst({
+    where: { id: req.params.id, workspaceId }
+  });
   if (!thread) {
     return res.status(404).json({ error: "Thread not found" });
   }

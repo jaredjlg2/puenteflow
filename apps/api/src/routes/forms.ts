@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { prisma, addWorkspaceFilter } from "@puenteflow/db";
+import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { z } from "zod";
 import { zFormSchema } from "@puenteflow/shared";
@@ -9,7 +9,9 @@ const router = Router();
 
 router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const forms = await prisma.form.findMany(addWorkspaceFilter(workspaceId, {}));
+  const forms = await prisma.form.findMany({
+    where: { workspaceId }
+  });
   res.json({ forms });
 });
 
