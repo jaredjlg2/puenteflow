@@ -49,4 +49,4 @@ services:
 
 databases:
   - name: puenteflow-db
-    plan: starter
+    plan: basic-1gb
