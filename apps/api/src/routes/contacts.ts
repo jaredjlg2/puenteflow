@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { prisma, addWorkspaceFilter } from "@puenteflow/db";
+import { prisma } from "@puenteflow/db";
 import { authMiddleware, requireWorkspace } from "../middleware/auth";
 import { zContactCreate } from "@puenteflow/shared";
 import { publishEvent } from "../services/workflows";
@@ -8,9 +8,10 @@ const router = Router();
 
 router.get("/", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const contacts = await prisma.contact.findMany(addWorkspaceFilter(workspaceId, {
+  const contacts = await prisma.contact.findMany({
+    where: { workspaceId },
     orderBy: { createdAt: "desc" }
-  }));
+  });
   res.json({ contacts });
 });
 
@@ -38,13 +39,13 @@ router.post("/", authMiddleware, requireWorkspace, async (req: Request, res: Res
 
 router.get("/:id", authMiddleware, requireWorkspace, async (req: Request, res: Response) => {
   const workspaceId = req.workspaceId as string;
-  const contact = await prisma.contact.findFirst(addWorkspaceFilter(workspaceId, {
-    where: { id: req.params.id },
+  const contact = await prisma.contact.findFirst({
+    where: { id: req.params.id, workspaceId },
     include: {
       activities: { orderBy: { createdAt: "desc" } },
       threads: { include: { messages: true } }
     }
-  }));
+  });
   if (!contact) {
     return res.status(404).json({ error: "Not found" });
   }

@@ -18,7 +18,7 @@ export const publishEvent = async (event: DomainEvent) => {
 
 export const startWorkflowListener = () => {
   eventBus.on("event", async (event: DomainEvent) => {
-    const automations: Prisma.AutomationGetPayload<{ include: { actions: true } }>[] = await prisma.automation.findMany({
+    const automations = await prisma.automation.findMany({
       where: {
         workspaceId: event.workspaceId,
         enabled: true,
@@ -27,13 +27,14 @@ export const startWorkflowListener = () => {
       include: { actions: true }
     });
 
+    const payload = event.payload as Prisma.InputJsonValue;
     for (const automation of automations) {
       const run = await prisma.workflowRun.create({
         data: {
           workspaceId: event.workspaceId,
           automationId: automation.id,
           triggerEvent: event.type,
-          triggerPayload: event.payload,
+          triggerPayload: payload,
           status: "queued"
         }
       });
@@ -43,11 +44,13 @@ export const startWorkflowListener = () => {
           workspaceId: event.workspaceId,
           automationId: automation.id,
           event: "workflow.queued",
-          payload: event.payload
+          payload
         }
       });
 
-      const orderedActions = automation.actions.sort((a, b) => a.order - b.order);
+      const orderedActions = [...automation.actions].sort(
+        (a: (typeof automation.actions)[number], b: (typeof automation.actions)[number]) => a.order - b.order
+      );
       for (const action of orderedActions) {
         const idempotencyKey = `${run.id}:${action.id}`;
         await prisma.workflowStepRun.create({

@@ -21,11 +21,21 @@ const workspaceModels = new Set([
   "AutomationAuditLog"
 ]);
 
-type PrismaMiddleware = Parameters<PrismaClient["$use"]>[0];
-type PrismaMiddlewareParams = Parameters<PrismaMiddleware>[0];
-type PrismaMiddlewareNext = Parameters<PrismaMiddleware>[1];
+type MiddlewareParams = {
+  model?: string | null;
+  action: string;
+  args?: {
+    data?: unknown;
+    where?: { workspaceId?: string | null };
+  };
+};
+type MiddlewareNext = (params: MiddlewareParams) => Promise<unknown>;
 
-prisma.$use(async (params: PrismaMiddlewareParams, next: PrismaMiddlewareNext) => {
+const prismaUse = prisma.$use.bind(prisma) as unknown as (
+  middleware: (params: MiddlewareParams, next: MiddlewareNext) => Promise<unknown>
+) => void;
+
+prismaUse(async (params: MiddlewareParams, next: MiddlewareNext) => {
   if (params.model && workspaceModels.has(params.model)) {
     const action = params.action;
     const args = params.args ?? {};
@@ -34,7 +44,7 @@ prisma.$use(async (params: PrismaMiddlewareParams, next: PrismaMiddlewareNext) =
       const data = args.data;
       const entries = Array.isArray(data) ? data : [data];
       for (const entry of entries) {
-        if (!entry?.workspaceId) {
+        if (!(entry as { workspaceId?: string })?.workspaceId) {
           throw new Error(`Missing workspaceId for ${params.model} ${action}`);
         }
       }
@@ -49,19 +59,4 @@ prisma.$use(async (params: PrismaMiddlewareParams, next: PrismaMiddlewareNext) =
 
   return next(params);
 });
-
-const buildWorkspaceFilter = (workspaceId: string) => ({ workspaceId });
-
-type WorkspaceScopedWhere = { workspaceId?: string | null };
-
-const addWorkspaceFilter = <T extends { where?: WorkspaceScopedWhere }>(workspaceId: string, args: T): T => {
-  return {
-    ...args,
-    where: {
-      ...args.where,
-      workspaceId
-    }
-  };
-};
-
-export { prisma, buildWorkspaceFilter, addWorkspaceFilter };
+export { prisma };

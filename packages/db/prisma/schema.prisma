@@ -74,7 +74,10 @@ model Workspace {
   forms       Form[]
   submissions FormSubmission[]
   automations Automation[]
+  triggers    Trigger[]
+  actions     Action[]
   workflowRuns WorkflowRun[]
+  workflowStepRuns WorkflowStepRun[]
   auditLogs   AutomationAuditLog[]
 }
 
@@ -173,6 +176,7 @@ model Opportunity {
   contact     Contact @relation(fields: [contactId], references: [id])
   stage       Stage   @relation(fields: [stageId], references: [id])
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  activities  Activity[]
 
   @@index([workspaceId])
   @@index([stageId])
@@ -280,6 +284,7 @@ model Automation {
   triggers    Trigger[]
   actions     Action[]
   workflowRuns WorkflowRun[]
+  auditLogs   AutomationAuditLog[]
 
   @@index([workspaceId])
 }
