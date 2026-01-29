@@ -40,6 +40,10 @@ app.use("/public", publicRoutes);
 app.use("/webhooks", webhookRoutes);
 app.use(healthRoutes);
 
+app.get("/", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
 app.get("/docs", (_req, res) => {
   res.json(openapiSpec);
 });
