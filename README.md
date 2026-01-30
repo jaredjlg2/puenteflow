@@ -85,6 +85,12 @@ render.yaml
 
 ## Local development
 
+### Local-only setup (no Render billing)
+
+If you want to avoid hosted costs while validating the product, run everything locally
+and ignore `render.yaml`. The stack runs with Docker (Postgres + Redis) and local
+Node services.
+
 1. Install dependencies:
 
 ```bash
@@ -113,6 +119,12 @@ pnpm dev
 - API: http://localhost:4000
 - Web: http://localhost:3000
 - OpenAPI JSON: http://localhost:4000/docs
+
+To stop the local databases when you are done:
+
+```bash
+pnpm db:down
+```
 
 ## Environment variables
 
