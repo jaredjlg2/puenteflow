@@ -176,7 +176,7 @@ If you configure SendGrid Event Webhook signing keys, the signature is verified.
 
 The seed script creates:
 - Demo workspace
-- Owner user (email: owner@demo.local / password: demo)
+- Owner user (email: owner@demo.local / password: demo1234)
 - Pipeline + stages
 - Sample contact, opportunity, and activities
 - Sample form + template
