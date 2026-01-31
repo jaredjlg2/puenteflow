@@ -1,10 +1,20 @@
-import { PrismaClient, Role, OpportunityStatus, ActivityType, MessageChannel } from "@prisma/client";
+import {
+  PrismaClient,
+  Role,
+  OpportunityStatus,
+  ActivityType,
+  MessageChannel
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
   const passwordHash = await bcrypt.hash("demo1234", 10);
+
+
+  // 1) Create workspace + owner user/member first
+>>>>>>> 424d4fa (Update prisma seed data)
   const workspace = await prisma.workspace.create({
     data: {
       name: "Demo Workspace",
@@ -19,27 +29,47 @@ async function main() {
             }
           }
         }
-      },
-      pipelines: {
-        create: {
-          name: "Sales Pipeline",
-          stages: {
-            create: [
-              { name: "New", order: 1 },
-              { name: "Qualified", order: 2 },
-              { name: "Won", order: 3 }
-            ]
-          }
-        }
       }
-    },
-    include: {
-      pipelines: { include: { stages: true } }
     }
   });
 
-  const [newStage] = workspace.pipelines[0].stages;
+  // 2) Create pipeline (explicitly attach workspace)
+  const pipeline = await prisma.pipeline.create({
+    data: {
+      workspaceId: workspace.id,
+      name: "Sales Pipeline"
+    }
+  });
 
+  // 3) Create stages (explicitly attach workspace + pipeline)
+  const [newStage] = await Promise.all([
+    prisma.stage.create({
+      data: {
+        workspaceId: workspace.id,
+        pipelineId: pipeline.id,
+        name: "New",
+        order: 1
+      }
+    }),
+    prisma.stage.create({
+      data: {
+        workspaceId: workspace.id,
+        pipelineId: pipeline.id,
+        name: "Qualified",
+        order: 2
+      }
+    }),
+    prisma.stage.create({
+      data: {
+        workspaceId: workspace.id,
+        pipelineId: pipeline.id,
+        name: "Won",
+        order: 3
+      }
+    })
+  ]);
+
+  // 4) Contact
   const contact = await prisma.contact.create({
     data: {
       workspaceId: workspace.id,
@@ -52,6 +82,7 @@ async function main() {
     }
   });
 
+  // 5) Opportunity
   const opportunity = await prisma.opportunity.create({
     data: {
       workspaceId: workspace.id,
@@ -62,6 +93,7 @@ async function main() {
     }
   });
 
+  // 6) Activities
   await prisma.activity.createMany({
     data: [
       {
@@ -83,6 +115,7 @@ async function main() {
     ]
   });
 
+  // 7) Template
   await prisma.template.create({
     data: {
       workspaceId: workspace.id,
@@ -92,6 +125,7 @@ async function main() {
     }
   });
 
+  // 8) Form
   await prisma.form.create({
     data: {
       workspaceId: workspace.id,
@@ -107,6 +141,7 @@ async function main() {
   });
 
   console.log("Seed complete. Demo workspace:", workspace.id);
+  console.log("Demo login: owner@demo.local / demo1234");
 }
 
 main()
