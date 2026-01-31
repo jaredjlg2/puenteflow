@@ -26,6 +26,10 @@ const renderTemplate = (template: string, data: Record<string, string | undefine
   }, template);
 };
 
+const normalizeString = (value: string | null | undefined) => {
+  return value ?? undefined;
+};
+
 const getThreadId = async (workspaceId: string, contactId: string, channel: "SMS" | "EMAIL") => {
   let thread = await prisma.messageThread.findFirst({
     where: { workspaceId, contactId, channel }
@@ -87,10 +91,10 @@ const worker = new Worker(
       : null;
 
     const templateData = {
-      firstName: contact?.firstName,
-      lastName: contact?.lastName,
-      email: contact?.email,
-      phone: contact?.phone
+      firstName: normalizeString(contact?.firstName),
+      lastName: normalizeString(contact?.lastName),
+      email: normalizeString(contact?.email),
+      phone: normalizeString(contact?.phone)
     };
 
     if (actionType === "send_sms") {

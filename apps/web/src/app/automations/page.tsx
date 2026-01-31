@@ -19,11 +19,16 @@ interface Automation {
   enabled: boolean;
 }
 
+interface AutomationAction {
+  type: string;
+  config: Record<string, string>;
+}
+
 export default function AutomationsPage() {
   const [automations, setAutomations] = useState<Automation[]>([]);
   const [name, setName] = useState("");
   const [trigger, setTrigger] = useState(triggerOptions[0]);
-  const [actions, setActions] = useState([{ type: "send_sms", config: { text: "" } }]);
+  const [actions, setActions] = useState<AutomationAction[]>([{ type: "send_sms", config: { text: "" } }]);
 
   const loadAutomations = async () => {
     const data = await apiFetch("/automations");

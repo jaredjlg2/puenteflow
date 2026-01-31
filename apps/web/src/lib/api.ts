@@ -7,17 +7,21 @@ export const getAuthHeaders = () => {
   const token = localStorage.getItem("accessToken");
   const workspaceId = localStorage.getItem("workspaceId");
   return {
-    Authorization: token ? `Bearer ${token}` : "",
-    "X-Workspace-Id": workspaceId || ""
+    Authorization: token ? `Bearer ${token}` : undefined,
+    "X-Workspace-Id": workspaceId || undefined
   };
 };
 
 export const apiFetch = async (path: string, options: RequestInit = {}) => {
-  const headers = {
-    "Content-Type": "application/json",
-    ...(options.headers || {}),
-    ...getAuthHeaders()
-  };
+  const headers = new Headers(options.headers);
+  headers.set("Content-Type", "application/json");
+  const authHeaders = getAuthHeaders();
+  if (authHeaders.Authorization) {
+    headers.set("Authorization", authHeaders.Authorization);
+  }
+  if (authHeaders["X-Workspace-Id"]) {
+    headers.set("X-Workspace-Id", authHeaders["X-Workspace-Id"]);
+  }
   const response = await fetch(`${apiUrl}${path}`, {
     ...options,
     headers
