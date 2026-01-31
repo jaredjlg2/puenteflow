@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("demo", 10);
+  const passwordHash = await bcrypt.hash("demo1234", 10);
   const workspace = await prisma.workspace.create({
     data: {
       name: "Demo Workspace",
