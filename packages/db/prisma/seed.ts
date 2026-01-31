@@ -12,9 +12,7 @@ const prisma = new PrismaClient();
 async function main() {
   const passwordHash = await bcrypt.hash("demo1234", 10);
 
-
   // 1) Create workspace + owner user/member first
->>>>>>> 424d4fa (Update prisma seed data)
   const workspace = await prisma.workspace.create({
     data: {
       name: "Demo Workspace",
